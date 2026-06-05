@@ -3,6 +3,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <unistd.h>
+#include <string.h>
 
 int main(void){
 
@@ -18,6 +19,8 @@ int main(void){
 
     // Bind the server to an actual IPv4 socket with an IP and Port
     struct sockaddr_in server_addr;
+    memset(&server_addr, 0, sizeof(server_addr));
+
     server_addr.sin_family = AF_INET;
     server_addr.sin_port = htons(8888);
 
@@ -42,7 +45,10 @@ int main(void){
 
     // Make the server accept a connection
     struct sockaddr_in client_addr;
-    int client_addr_len = sizeof(client_addr);
+    memset(&client_addr, 0, sizeof(client_addr));
+
+
+    socklen_t client_addr_len = sizeof(client_addr);
 
     int client_fd = accept(server_fd, (struct sockaddr *)&client_addr, &client_addr_len);
 
@@ -55,7 +61,7 @@ int main(void){
     //////// Client Work /////////////////////////
     char ip_string[INET_ADDRSTRLEN];
     inet_ntop(AF_INET, &client_addr.sin_addr, ip_string, sizeof(ip_string));
-    int client_port = client_addr.sin_port;
+    int client_port = ntohs(client_addr.sin_port);
 
     printf("Client IP: %s:%d\n", ip_string, client_port);
 
@@ -74,7 +80,7 @@ int main(void){
     printf("Client: %s\n", recv_buffer);
 
     char *send_buffer = recv_buffer;
-    ssize_t bytes_sent = send(client_fd, send_buffer, sizeof(send_buffer), 0);
+    ssize_t bytes_sent = send(client_fd, send_buffer, bytes_read, 0);
 
     if(bytes_sent < 0) {
         perror("send");
@@ -82,6 +88,9 @@ int main(void){
         close(server_fd);
         return 1;
     }
+
+    close(client_fd);
+    close(server_fd);
     
     return 0;
 }
