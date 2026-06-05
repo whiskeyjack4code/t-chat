@@ -59,6 +59,29 @@ int main(void){
 
     printf("Client IP: %s:%d\n", ip_string, client_port);
 
+    // Sending and Receiving Data
+    char recv_buffer[1024];
+    ssize_t bytes_read = recv(client_fd, recv_buffer, sizeof(recv_buffer)-1, 0);
+
+    if(bytes_read < 0){
+        perror("recv");
+        close(client_fd);
+        close(server_fd);
+        return 1;
+    }
+
+    recv_buffer[bytes_read] = '\0';
+    printf("Client: %s\n", recv_buffer);
+
+    char *send_buffer = recv_buffer;
+    ssize_t bytes_sent = send(client_fd, send_buffer, sizeof(send_buffer), 0);
+
+    if(bytes_sent < 0) {
+        perror("send");
+        close(client_fd);
+        close(server_fd);
+        return 1;
+    }
     
     return 0;
 }
