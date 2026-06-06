@@ -15,6 +15,11 @@ ssize_t client_recv(struct Client *client, char *buffer, int buffer_size, int fl
     }
 
     buffer[bytes_read] = '\0';
+
+    if(strncmp(buffer, "quit", 4) == 0){
+        printf("[%s:%d] disconnected\n", client->ip, client->port);
+        return 0;
+    }
     printf("[%s:%d] -> %s\n", client->ip, client->port, buffer);
 
     return bytes_read;
