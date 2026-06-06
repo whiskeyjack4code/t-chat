@@ -1,4 +1,9 @@
-#include "../include/client.h"
+#include "client.h"
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <string.h>
+#include <stdio.h>
+#include <unistd.h>
 
 struct Server {
     int fd;

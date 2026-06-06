@@ -1,8 +1,3 @@
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <string.h>
-#include <stdio.h>
-#include <unistd.h>
 #include "server.h"
 
 int server_init(struct Server *server, int family, int type, int port, char *ip, int flags){
