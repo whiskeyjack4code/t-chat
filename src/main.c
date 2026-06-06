@@ -27,29 +27,26 @@ int main(void){
              // Sending and Receiving Data
             char recv_buffer[1024];
 
-            ssize_t bytes_read = recv(client_fd, recv_buffer, sizeof(recv_buffer)-1, 0);
+            ssize_t bytes_read = client_recv(&client, recv_buffer, sizeof(recv_buffer), 0);
 
-            if(bytes_read < 0){
-                perror("recv");
-                close(client_fd);
+            if(bytes_read == -1){
                 break;
+                close(client_fd);
             }
 
             if(bytes_read == 0){
-                printf("[%s:%d] disconnected\n", client.ip, client.port);
                 break;
+                close(client_fd);
             }
-
-            recv_buffer[bytes_read] = '\0';
-            printf("Client: %s\n", recv_buffer);
 
             char *send_buffer = recv_buffer;
             ssize_t bytes_sent = send(client_fd, send_buffer, bytes_read, 0);
-            if(bytes_sent < 0) {
-                perror("send");
+
+            if(bytes_read < 0){
                 close(client_fd);
                 break;
             }
+            
         }
        
         close(client_fd);
