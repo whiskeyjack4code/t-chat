@@ -31,28 +31,28 @@ int main(void){
 
             if(bytes_read == -1){
                 break;
-                close(client_fd);
+                client_close(&client);
             }
 
             if(bytes_read == 0){
                 break;
-                close(client_fd);
+                client_close(&client);
             }
 
             char *send_buffer = recv_buffer;
-            ssize_t bytes_sent = send(client_fd, send_buffer, bytes_read, 0);
+            ssize_t bytes_sent = client_send(&client, send_buffer, bytes_read, 0);
 
             if(bytes_read < 0){
-                close(client_fd);
+                client_close(&client);
                 break;
             }
             
         }
        
-        close(client_fd);
+        client_close(&client);
     }
 
-    close(server_fd);
+    server_close(&server);
     
     return 0;
 }

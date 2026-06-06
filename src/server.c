@@ -67,3 +67,7 @@ int server_accept_client(struct Server *server, struct Client *client){
 
         return client_fd;
 }
+
+void server_close(struct Server *server){
+    close(server->fd);
+}

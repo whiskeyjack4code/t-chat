@@ -12,3 +12,4 @@ struct Client {
 
 ssize_t client_recv(struct Client *client, char *buffer, int buffer_size, int flags);
 ssize_t client_send(struct Client *client, char *buffer, int bytes_read, int flags);
+void client_close(struct Client *client);

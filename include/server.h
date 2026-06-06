@@ -16,3 +16,4 @@ struct Server {
 
 int server_init(struct Server *server, int family, int type, int port, char *ip, int flags);
 int server_accept_client(struct Server *server, struct Client *client);
+void server_close(struct Server *server);
