@@ -19,27 +19,9 @@ int main(void){
     for(;;){
         printf("Waiting for connections..\n");
 
-        // Make the server accept a connection
-        struct sockaddr_in client_addr;
-        memset(&client_addr, 0, sizeof(client_addr));
+        struct Client client;
 
-
-        socklen_t client_addr_len = sizeof(client_addr);
-
-        int client_fd = accept(server_fd, (struct sockaddr *)&client_addr, &client_addr_len);
-
-        if(client_fd == -1){
-            perror("accept");
-            close(server_fd);
-            break;
-        }
-
-        //////// Client Work /////////////////////////
-        char ip_string[INET_ADDRSTRLEN];
-        inet_ntop(AF_INET, &client_addr.sin_addr, ip_string, sizeof(ip_string));
-        int client_port = ntohs(client_addr.sin_port);
-
-        printf("Client Connected [%s:%d]\n", ip_string, client_port);
+        int client_fd = server_accept_client(&server, &client);
 
         for(;;){
              // Sending and Receiving Data
@@ -54,7 +36,7 @@ int main(void){
             }
 
             if(bytes_read == 0){
-                printf("[%s:%d] disconnected\n", ip_string, client_port);
+                printf("[%s:%d] disconnected\n", client.ip, client.port);
                 break;
             }
 
