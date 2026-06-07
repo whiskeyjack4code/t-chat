@@ -4,7 +4,11 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <string.h>
+#include <stdlib.h>
+#include <pthread.h>
 #include "server.h"
+
+void* handle_client(void *arg);
 
 int main(void){
 
@@ -19,40 +23,69 @@ int main(void){
     for(;;){
         printf("Waiting for connections..\n");
 
-        struct Client client;
+        struct Client *client = malloc(sizeof(struct Client));
 
-        int client_fd = server_accept_client(&server, &client);
-
-        for(;;){
-             // Sending and Receiving Data
-            char recv_buffer[1024];
-
-            ssize_t bytes_read = client_recv(&client, recv_buffer, sizeof(recv_buffer), 0);
-
-            if(bytes_read == -1){
-                break;
-                client_close(&client);
-            }
-
-            if(bytes_read == 0){
-                break;
-                client_close(&client);
-            }
-
-            char *send_buffer = recv_buffer;
-            ssize_t bytes_sent = client_send(&client, send_buffer, bytes_read, 0);
-
-            if(bytes_read < 0){
-                client_close(&client);
-                break;
-            }
-            
+        if(client == NULL){
+            perror("malloc");
+            continue;
         }
+
+        int client_fd = server_accept_client(&server, client);
+        if(client_fd == -1){
+            free(client);
+            continue;
+        }
+
+        pthread_t thread;
+
+        if (pthread_create(&thread, NULL, handle_client, client) != 0) {
+            perror("pthread_create");
+            client_close(client);
+            free(client);
+            continue;
+        }
+
+        pthread_detach(thread);
        
-        client_close(&client);
     }
 
     server_close(&server);
     
     return 0;
+}
+
+
+void* handle_client(void *arg) {
+
+    struct Client *client = arg;
+
+    char recv_buffer[1024];
+
+    for(;;){
+             // Sending and Receiving Data
+
+            ssize_t bytes_read = client_recv(client, recv_buffer, sizeof(recv_buffer), 0);
+
+            if(bytes_read == -1){
+                break;
+            }
+
+            if(bytes_read == 0){
+                break;
+            }
+
+            char *send_buffer = recv_buffer;
+            ssize_t bytes_sent = client_send(client, send_buffer, bytes_read, 0);
+
+            if(bytes_sent < 0){
+                break;
+            }
+            
+        }
+
+    client_close(client);
+    free(client);
+
+    return NULL;
+
 }

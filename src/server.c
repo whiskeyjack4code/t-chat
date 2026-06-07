@@ -59,7 +59,6 @@ int server_accept_client(struct Server *server, struct Client *client){
         client->fd = client_fd;
 
         //////// Client Work /////////////////////////
-        char ip_string[INET_ADDRSTRLEN];
         inet_ntop(AF_INET, &client_addr.sin_addr, client->ip, sizeof(client->ip));
         client->port = ntohs(client_addr.sin_port);
 
