@@ -21,7 +21,6 @@ int main(void){
     }
 
     for(;;){
-        printf("Waiting for connections..\n");
 
         struct Client *client = malloc(sizeof(struct Client));
 
@@ -32,6 +31,7 @@ int main(void){
 
         int client_fd = server_accept_client(&server, client);
         if(client_fd == -1){
+            perror("server_accept_client");
             free(client);
             continue;
         }
@@ -62,26 +62,26 @@ void* handle_client(void *arg) {
     char recv_buffer[1024];
 
     for(;;){
-             // Sending and Receiving Data
+        // Sending and Receiving Data
 
-            ssize_t bytes_read = client_recv(client, recv_buffer, sizeof(recv_buffer), 0);
+        ssize_t bytes_read = client_recv(client, recv_buffer, sizeof(recv_buffer), 0);
 
-            if(bytes_read == -1){
-                break;
-            }
-
-            if(bytes_read == 0){
-                break;
-            }
-
-            char *send_buffer = recv_buffer;
-            ssize_t bytes_sent = client_send(client, send_buffer, bytes_read, 0);
-
-            if(bytes_sent < 0){
-                break;
-            }
-            
+        if(bytes_read == -1){
+            break;
         }
+
+        if(bytes_read == 0){
+            break;
+        }
+
+        char *send_buffer = recv_buffer;
+        ssize_t bytes_sent = client_send(client, send_buffer, bytes_read, 0);
+
+        if(bytes_sent < 0){
+            break;
+        }
+        
+    }
 
     client_close(client);
     free(client);
