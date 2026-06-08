@@ -8,7 +8,14 @@
 #include <pthread.h>
 #include "server.h"
 
+#define MAX_CLIENTS 32
+struct Client *clients[MAX_CLIENTS];
+int client_count = 0;
+pthread_mutex_t clients_lock = PTHREAD_MUTEX_INITIALIZER;
+
 void* handle_client(void *arg);
+void add_client(struct Client *client);
+void remove_client(struct Client *client);
 
 int main(void){
 
@@ -35,6 +42,8 @@ int main(void){
             free(client);
             continue;
         }
+
+        add_client(client);
 
         pthread_t thread;
 
@@ -83,9 +92,44 @@ void* handle_client(void *arg) {
         
     }
 
+    remove_client(client);
     client_close(client);
     free(client);
 
     return NULL;
 
+}
+
+void add_client(struct Client *client)
+{
+    pthread_mutex_lock(&clients_lock);
+
+    if (client_count < MAX_CLIENTS) {
+        clients[client_count] = client;
+        client_count++;
+
+        printf("Client added. Current clients: %d\n", client_count);
+    } else {
+        printf("Server full. Cannot add client.\n");
+    }
+
+    pthread_mutex_unlock(&clients_lock);
+}
+
+void remove_client(struct Client *client)
+{
+    pthread_mutex_lock(&clients_lock);
+
+    for (int i = 0; i < client_count; i++) {
+        if (clients[i] == client) {
+            clients[i] = clients[client_count - 1];
+            clients[client_count - 1] = NULL;
+            client_count--;
+
+            printf("Client removed. Current clients: %d\n", client_count);
+            break;
+        }
+    }
+
+    pthread_mutex_unlock(&clients_lock);
 }
