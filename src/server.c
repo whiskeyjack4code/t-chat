@@ -2,7 +2,6 @@
 
 int server_init(struct Server *server, int family, int type, int port, char *ip, int flags){
 
-    // Setup a generic TCP IP socket
     server->fd = socket(family, type, flags);
 
      if(server->fd == -1){
@@ -10,7 +9,6 @@ int server_init(struct Server *server, int family, int type, int port, char *ip,
         return -1;
     }
 
-    // Bind the server to an actual IPv4 socket with an IP and Port
     struct sockaddr_in server_addr;
     memset(&server_addr, 0, sizeof(server_addr));
 
@@ -32,7 +30,6 @@ int server_init(struct Server *server, int family, int type, int port, char *ip,
         return -1;
     }
 
-    // Make the server listen for incoming connections
     if(listen(server->fd, 10) < 0){
         perror("listen");
         close(server->fd);
@@ -44,7 +41,6 @@ int server_init(struct Server *server, int family, int type, int port, char *ip,
 }
 
 int server_accept_client(struct Server *server, struct Client *client){
-     // Make the server accept a connection
         struct sockaddr_in client_addr;
         memset(&client_addr, 0, sizeof(client_addr));
 
@@ -58,7 +54,6 @@ int server_accept_client(struct Server *server, struct Client *client){
         }
         client->fd = client_fd;
 
-        //////// Client Work /////////////////////////
         inet_ntop(AF_INET, &client_addr.sin_addr, client->ip, sizeof(client->ip));
         client->port = ntohs(client_addr.sin_port);
 

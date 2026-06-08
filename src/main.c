@@ -19,7 +19,6 @@ void remove_client(struct Client *client);
 
 int main(void){
 
-    ///////// Server work ///////////////////////
     struct Server server;
     int server_fd = server_init(&server, AF_INET, SOCK_STREAM, 8888, "127.0.0.1", 0);
 
@@ -71,7 +70,6 @@ void* handle_client(void *arg) {
     char recv_buffer[1024];
 
     for(;;){
-        // Sending and Receiving Data
 
         ssize_t bytes_read = client_recv(client, recv_buffer, sizeof(recv_buffer), 0);
 
