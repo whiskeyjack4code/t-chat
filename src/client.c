@@ -26,7 +26,7 @@ ssize_t client_recv(struct Client *client, char *buffer, int buffer_size, int fl
     return bytes_read;
 }
 
-ssize_t client_send(struct Client *client, char *buffer, int bytes_read, int flags){
+ssize_t client_send(struct Client *client, const char *buffer, int bytes_read, int flags){
     ssize_t bytes_sent = send(client->fd, buffer, bytes_read, flags);
 
     if(bytes_sent < 0) {

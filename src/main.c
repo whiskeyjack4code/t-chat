@@ -16,6 +16,7 @@ pthread_mutex_t clients_lock = PTHREAD_MUTEX_INITIALIZER;
 void* handle_client(void *arg);
 void add_client(struct Client *client);
 void remove_client(struct Client *client);
+void broadcast_message(struct Client *client, const char *message, ssize_t message_len);
 
 int main(void){
 
@@ -81,12 +82,7 @@ void* handle_client(void *arg) {
             break;
         }
 
-        char *send_buffer = recv_buffer;
-        ssize_t bytes_sent = client_send(client, send_buffer, bytes_read, 0);
-
-        if(bytes_sent < 0){
-            break;
-        }
+        broadcast_message(client, recv_buffer, bytes_read);
         
     }
 
@@ -126,6 +122,23 @@ void remove_client(struct Client *client)
 
             printf("Client removed. Current clients: %d\n", client_count);
             break;
+        }
+    }
+
+    pthread_mutex_unlock(&clients_lock);
+}
+
+void broadcast_message(struct Client *sender, const char *message, ssize_t message_len){
+    pthread_mutex_lock(&clients_lock);
+
+    for(int i = 0; i < client_count; i++){
+        if(clients[i] == sender){
+            continue;
+        }
+        ssize_t bytes_sent = client_send(clients[i], message, message_len, 0);
+        if(bytes_sent < 0){
+            perror("send");
+            continue;
         }
     }
 
